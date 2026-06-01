@@ -446,6 +446,24 @@ input::placeholder { color: var(--text-3); }
 
 <main class="page" aria-label="Citizenship eligibility tracker">
 
+  <!-- ══ PERSON SWITCHER ══ -->
+  <div class="person-switcher" role="tablist" aria-label="Select person">
+    <button class="person-tab active" id="tab-a" role="tab" aria-selected="true" aria-controls="panel-a" onclick="switchTab('a', this)">
+      <div style="display:flex;justify-content:space-between;width:100%;align-items:flex-start;">
+        <span class="person-tab-name">Abhinav</span>
+        <span class="person-tab-indicator"></span>
+      </div>
+      <span class="person-tab-days" id="a-tab-summary">— days remaining</span>
+    </button>
+    <button class="person-tab" id="tab-s" role="tab" aria-selected="false" aria-controls="panel-s" onclick="switchTab('s', this)">
+      <div style="display:flex;justify-content:space-between;width:100%;align-items:flex-start;">
+        <span class="person-tab-name">Shweta</span>
+        <span class="person-tab-indicator"></span>
+      </div>
+      <span class="person-tab-days" id="s-tab-summary">— days remaining</span>
+    </button>
+  </div>
+
   <!-- ══ ABHINAV ══ -->
   <div class="tab-panel active" id="panel-a" role="tabpanel" aria-labelledby="tab-a">
     <div class="hero-card">

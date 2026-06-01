@@ -235,6 +235,49 @@ nav {
 .field-row { display: flex; align-items: center; padding: 0 16px; height: 48px; border-bottom: 1px solid var(--border); gap: 12px; }
 .field-row:last-child { border-bottom: none; }
 .field-label { font-size: 12px; color: var(--text-2); font-weight: 500; min-width: 120px; }
+.pr-field-row { display: flex; align-items: center; padding: 0 16px; height: 48px; gap: 12px; }
+.pr-date-display {
+  flex: 1; text-align: right;
+  font-family: var(--mono); font-size: 13px; color: var(--text);
+}
+.pr-lock-btn {
+  display: flex; align-items: center; gap: 5px;
+  font-family: var(--sans); font-size: 11px; font-weight: 600;
+  color: var(--text-3); background: transparent;
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 4px 9px; cursor: pointer; transition: all 0.15s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.pr-lock-btn:hover { border-color: var(--border-strong); color: var(--text-2); background: var(--surface2); }
+.pr-lock-btn.editing { color: var(--red); border-color: #f0c0ba; background: var(--red-bg); }
+.pr-edit-row {
+  display: none; align-items: center;
+  padding: 12px 16px; gap: 10px;
+  border-top: 1px solid var(--border);
+  background: var(--surface2);
+}
+.pr-edit-row.visible { display: flex; }
+.pr-edit-row input[type="date"] {
+  flex: 1; border: 1px solid var(--border); border-radius: 8px;
+  padding: 7px 10px; background: var(--surface);
+  font-family: var(--mono); font-size: 13px; color: var(--text);
+  outline: none; color-scheme: light; text-align: left;
+}
+.pr-edit-row input[type="date"]:focus { border-color: var(--red); }
+.pr-confirm-btn {
+  font-family: var(--sans); font-size: 12px; font-weight: 600;
+  background: var(--text); color: white;
+  border: none; border-radius: 7px; padding: 7px 14px;
+  cursor: pointer; transition: opacity 0.15s; white-space: nowrap;
+}
+.pr-confirm-btn:hover { opacity: 0.85; }
+.pr-cancel-btn {
+  font-family: var(--sans); font-size: 12px; font-weight: 500;
+  background: transparent; color: var(--text-3);
+  border: 1px solid var(--border); border-radius: 7px; padding: 7px 10px;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.pr-cancel-btn:hover { color: var(--text-2); border-color: var(--border-strong); }
 input[type="date"], input[type="text"] {
   flex: 1; border: none; outline: none;
   font-family: var(--mono); font-size: 13px;
@@ -376,9 +419,19 @@ input::placeholder { color: var(--text-3); }
     <div class="section">
       <div class="section-head"><span class="section-title">PR Start Date</span></div>
       <div class="field-card">
-        <div class="field-row">
+        <div class="pr-field-row">
           <span class="field-label">Date became PR</span>
-          <input type="date" id="a-prDate" value="2023-03-26" oninput="calculate('a')" />
+          <span class="pr-date-display" id="a-prDate-display">Mar 26, 2023</span>
+          <input type="hidden" id="a-prDate" value="2023-03-26" />
+          <button class="pr-lock-btn" id="a-pr-edit-btn" onclick="togglePrEdit('a')" aria-label="Edit PR date">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7.5 1.5l2 2-6 6H1.5v-2l6-6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            Edit
+          </button>
+        </div>
+        <div class="pr-edit-row" id="a-pr-edit-row" role="alert" aria-live="polite">
+          <input type="date" id="a-prDate-edit" value="2023-03-26" aria-label="Edit PR start date for Abhinav" />
+          <button class="pr-cancel-btn" onclick="cancelPrEdit('a')">Cancel</button>
+          <button class="pr-confirm-btn" onclick="confirmPrEdit('a')">Confirm</button>
         </div>
       </div>
     </div>
@@ -465,9 +518,19 @@ input::placeholder { color: var(--text-3); }
     <div class="section">
       <div class="section-head"><span class="section-title">PR Start Date</span></div>
       <div class="field-card">
-        <div class="field-row">
+        <div class="pr-field-row">
           <span class="field-label">Date became PR</span>
-          <input type="date" id="s-prDate" value="2023-03-26" oninput="calculate('s')" />
+          <span class="pr-date-display" id="s-prDate-display">Mar 26, 2023</span>
+          <input type="hidden" id="s-prDate" value="2023-03-26" />
+          <button class="pr-lock-btn" id="s-pr-edit-btn" onclick="togglePrEdit('s')" aria-label="Edit PR date">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7.5 1.5l2 2-6 6H1.5v-2l6-6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            Edit
+          </button>
+        </div>
+        <div class="pr-edit-row" id="s-pr-edit-row" role="alert" aria-live="polite">
+          <input type="date" id="s-prDate-edit" value="2023-03-26" aria-label="Edit PR start date for Shweta" />
+          <button class="pr-cancel-btn" onclick="cancelPrEdit('s')">Cancel</button>
+          <button class="pr-confirm-btn" onclick="confirmPrEdit('s')">Confirm</button>
         </div>
       </div>
     </div>
@@ -785,7 +848,12 @@ function applyData(data) {
     const src = data?.[p] || DEFAULTS[p];
     state[p].trips  = src.trips  || DEFAULTS[p].trips;
     state[p].nextId = src.nextId || DEFAULTS[p].nextId;
-    document.getElementById(`${p}-prDate`).value = src.prDate || DEFAULTS[p].prDate;
+    const prVal = src.prDate || DEFAULTS[p].prDate;
+    document.getElementById(`${p}-prDate`).value = prVal;
+    document.getElementById(`${p}-prDate-edit`).value = prVal;
+    const d = new Date(prVal + 'T00:00:00');
+    document.getElementById(`${p}-prDate-display`).textContent =
+      d.toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' });
     renderTrips(p);
   });
 }
@@ -811,10 +879,46 @@ addTrip = function(p) { _origAddTrip(p); };
 const _origRemoveTrip = removeTrip;
 removeTrip = function(p, id) { _origRemoveTrip(p, id); };
 
-document.getElementById('a-prDate').addEventListener('input', () => { calculate('a'); scheduleSave(); setSyncStatus('saving'); });
-document.getElementById('s-prDate').addEventListener('input', () => { calculate('s'); scheduleSave(); setSyncStatus('saving'); });
+// PR date changes handled by confirmPrEdit()
 document.getElementById('a-tripList').addEventListener('input', () => { scheduleSave(); setSyncStatus('saving'); });
 document.getElementById('s-tripList').addEventListener('input', () => { scheduleSave(); setSyncStatus('saving'); });
+
+// ── PR Date lock/edit ──
+function togglePrEdit(p) {
+  const editRow = document.getElementById(`${p}-pr-edit-row`);
+  const btn     = document.getElementById(`${p}-pr-edit-btn`);
+  const editIn  = document.getElementById(`${p}-prDate-edit`);
+  // Sync edit input to current confirmed value
+  editIn.value = document.getElementById(`${p}-prDate`).value;
+  editRow.classList.add('visible');
+  btn.classList.add('editing');
+  btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Cancel`;
+  btn.setAttribute('onclick', `cancelPrEdit('${p}')`);
+  editIn.focus();
+}
+
+function cancelPrEdit(p) {
+  const editRow = document.getElementById(`${p}-pr-edit-row`);
+  const btn     = document.getElementById(`${p}-pr-edit-btn`);
+  editRow.classList.remove('visible');
+  btn.classList.remove('editing');
+  btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7.5 1.5l2 2-6 6H1.5v-2l6-6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg> Edit`;
+  btn.setAttribute('onclick', `togglePrEdit('${p}')`);
+}
+
+function confirmPrEdit(p) {
+  const newVal = document.getElementById(`${p}-prDate-edit`).value;
+  if (!newVal) return;
+  // Update hidden input and display
+  document.getElementById(`${p}-prDate`).value = newVal;
+  const d = new Date(newVal + 'T00:00:00');
+  document.getElementById(`${p}-prDate-display`).textContent =
+    d.toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' });
+  cancelPrEdit(p);
+  calculate(p);
+  scheduleSave();
+  setSyncStatus('saving');
+}
 
 // ── Boot: load from Firestore, then listen for real-time changes ──
 (async () => {

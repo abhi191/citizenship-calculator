@@ -434,7 +434,9 @@ function calcTrips(prDate, today) {
     // Only count trips after PR date, cap return at today
     const start = left < prDate ? prDate : left;
     const end   = ret  > today  ? today  : ret;
-    if (end > start) deducted += daysBetween(start, end);
+    // IRCC rule: departure day AND return day both count as days in Canada
+    // so days absent = diff - 1
+    if (end > start) deducted += Math.max(0, daysBetween(start, end) - 1);
   });
   return deducted;
 }
@@ -492,7 +494,7 @@ function renderTrips() {
   list.innerHTML = '';
   trips.forEach(t => {
     const days = (t.left && t.returned)
-      ? Math.max(0, daysBetween(new Date(t.left), new Date(t.returned)))
+      ? Math.max(0, daysBetween(new Date(t.left), new Date(t.returned)) - 1)
       : 0;
     const el = document.createElement('div');
     el.className = 'trip-item';

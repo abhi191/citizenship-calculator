@@ -879,12 +879,12 @@ function renderTrips(p) {
         <div class="trip-date-cell">
           <span class="trip-date-label">Left Canada</span>
           <input type="date" value="${t.left}"
-            onchange="state['${p}'].trips.find(x=>x.id===${t.id}).left=this.value;renderTrips('${p}')" />
+            onchange="confirmTripDateChange('${p}',${t.id},'left',this.value,this)" />
         </div>
         <div class="trip-date-cell">
           <span class="trip-date-label">Returned</span>
           <input type="date" value="${t.returned}"
-            onchange="state['${p}'].trips.find(x=>x.id===${t.id}).returned=this.value;renderTrips('${p}')" />
+            onchange="confirmTripDateChange('${p}',${t.id},'returned',this.value,this)" />
         </div>
       </div>
     `;
@@ -930,6 +930,26 @@ document.getElementById('confirm-modal').addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeModal();
 });
+
+function confirmTripDateChange(p, id, field, newVal, inputEl) {
+  const trip = state[p].trips.find(t => t.id === id);
+  const oldVal = trip[field];
+  const label = field === 'left' ? 'Left Canada' : 'Returned';
+  const dest = trip.name || 'this trip';
+  showModal({
+    icon: '📅', iconClass: 'warn',
+    title: 'Change date?',
+    body: `Update <strong>${label}</strong> date for <strong>${dest}</strong>? This will recalculate qualifying days.`,
+    confirmLabel: 'Update date',
+    confirmClass: 'safe',
+    onConfirm: () => {
+      trip[field] = newVal;
+      renderTrips(p);
+    }
+  });
+  // revert input visually until confirmed
+  inputEl.value = oldVal;
+}
 
 function addTrip(p) {
   const name = p === 'a' ? 'Abhinav' : 'Shweta';
@@ -1149,6 +1169,7 @@ window.cancelPrEdit = cancelPrEdit;
 window.confirmPrEdit = confirmPrEdit;
 window.calculate = calculate;
 window.renderTrips = renderTrips;
+window.confirmTripDateChange = confirmTripDateChange;
 </script>
 </body>
 </html>

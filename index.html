@@ -337,6 +337,62 @@ input::placeholder { color: var(--text-3); }
 
 /* ── FOOTER ── */
 .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); text-align: center; line-height: 1.7; }
+/* ── Confirmation Modal ── */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+.modal-backdrop.visible { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px 20px;
+  max-width: 360px; width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(6px);
+  transition: transform 0.15s ease;
+}
+.modal-backdrop.visible .modal { transform: translateY(0); }
+.modal-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+  font-size: 18px;
+}
+.modal-icon.warn { background: var(--red-bg); }
+.modal-icon.add  { background: var(--green-bg); }
+.modal-title {
+  font-size: 15px; font-weight: 600;
+  color: var(--text); margin-bottom: 6px; letter-spacing: -0.2px;
+}
+.modal-body {
+  font-size: 13px; color: var(--text-2);
+  line-height: 1.55; margin-bottom: 20px;
+}
+.modal-body strong { color: var(--text); font-weight: 600; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-btn-cancel {
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  padding: 8px 16px; border-radius: 8px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-2); cursor: pointer; transition: all 0.15s;
+}
+.modal-btn-cancel:hover { background: var(--surface2); color: var(--text); }
+.modal-btn-confirm {
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  padding: 8px 16px; border-radius: 8px;
+  border: none; cursor: pointer; transition: opacity 0.15s;
+}
+.modal-btn-confirm.danger { background: var(--red); color: white; }
+.modal-btn-confirm.safe  { background: var(--text); color: white; }
+.modal-btn-confirm:hover { opacity: 0.85; }
+
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .footer a { color: var(--text-2); text-decoration: underline; text-underline-offset: 2px; }
 </style>
@@ -563,6 +619,18 @@ input::placeholder { color: var(--text-3); }
     <a href="https://www.canada.ca/en/immigration-refugees-citizenship/services/canadian-citizenship/become-citizen/eligibility.html" target="_blank">IRCC eligibility tool</a>
     before applying.
   </div>
+<!-- Confirmation Modal -->
+<div class="modal-backdrop" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-body">
+  <div class="modal">
+    <div class="modal-icon" id="modal-icon">⚠️</div>
+    <div class="modal-title" id="modal-title">Confirm</div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn-confirm danger" id="modal-confirm-btn" onclick="executeModalAction()">Confirm</button>
+    </div>
+  </div>
+</div>
 </main>
 
 <script type="module">
@@ -769,15 +837,74 @@ function renderTrips(p) {
   calculate(p);
 }
 
+// ── Modal system ──
+let _pendingAction = null;
+
+function showModal({ icon, iconClass, title, body, confirmLabel, confirmClass, onConfirm }) {
+  document.getElementById('modal-icon').textContent = icon;
+  document.getElementById('modal-icon').className = `modal-icon ${iconClass}`;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  const btn = document.getElementById('modal-confirm-btn');
+  btn.textContent = confirmLabel;
+  btn.className = `modal-btn-confirm ${confirmClass}`;
+  _pendingAction = onConfirm;
+  const backdrop = document.getElementById('confirm-modal');
+  backdrop.classList.add('visible');
+  // Focus confirm button for keyboard users
+  setTimeout(() => btn.focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('confirm-modal').classList.remove('visible');
+  _pendingAction = null;
+}
+
+function executeModalAction() {
+  if (_pendingAction) _pendingAction();
+  closeModal();
+}
+
+// Close on backdrop click
+document.getElementById('confirm-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'confirm-modal') closeModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
 function addTrip(p) {
-  state[p].trips.push({ id: state[p].nextId++, name: '', left: '', returned: '' });
-  renderTrips(p);
-  document.getElementById(`${p}-tripList`).lastChild?.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  const name = p === 'a' ? 'Abhinav' : 'Shweta';
+  showModal({
+    icon: '✈️', iconClass: 'add',
+    title: 'Add new trip?',
+    body: `This will add a new trip entry to <strong>${name}'s</strong> record. You can fill in the destination and dates after adding.`,
+    confirmLabel: 'Add trip',
+    confirmClass: 'safe',
+    onConfirm: () => {
+      state[p].trips.push({ id: state[p].nextId++, name: '', left: '', returned: '' });
+      renderTrips(p);
+      document.getElementById(`${p}-tripList`).lastChild?.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }
+  });
 }
 
 function removeTrip(p, id) {
-  state[p].trips = state[p].trips.filter(t => t.id !== id);
-  renderTrips(p);
+  const trip = state[p].trips.find(t => t.id === id);
+  const dest = trip?.name || 'this trip';
+  showModal({
+    icon: '🗑️', iconClass: 'warn',
+    title: 'Remove trip?',
+    body: `Are you sure you want to remove <strong>${dest}</strong>? This will recalculate your qualifying days and cannot be undone.`,
+    confirmLabel: 'Remove',
+    confirmClass: 'danger',
+    onConfirm: () => {
+      state[p].trips = state[p].trips.filter(t => t.id !== id);
+      renderTrips(p);
+    }
+  });
 }
 
 function switchTab(who, btn) {
@@ -909,15 +1036,27 @@ function cancelPrEdit(p) {
 function confirmPrEdit(p) {
   const newVal = document.getElementById(`${p}-prDate-edit`).value;
   if (!newVal) return;
-  // Update hidden input and display
-  document.getElementById(`${p}-prDate`).value = newVal;
-  const d = new Date(newVal + 'T00:00:00');
-  document.getElementById(`${p}-prDate-display`).textContent =
-    d.toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' });
-  cancelPrEdit(p);
-  calculate(p);
-  scheduleSave();
-  setSyncStatus('saving');
+  const name = p === 'a' ? 'Abhinav' : 'Shweta';
+  const oldVal = document.getElementById(`${p}-prDate`).value;
+  const oldD = new Date(oldVal + 'T00:00:00').toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' });
+  const newD = new Date(newVal + 'T00:00:00').toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' });
+  showModal({
+    icon: '📅', iconClass: 'warn',
+    title: 'Change PR date?',
+    body: `You're changing <strong>${name}'s</strong> PR start date from <strong>${oldD}</strong> to <strong>${newD}</strong>. This affects all qualifying day calculations.`,
+    confirmLabel: 'Yes, update',
+    confirmClass: 'danger',
+    onConfirm: () => {
+      document.getElementById(`${p}-prDate`).value = newVal;
+      const d = new Date(newVal + 'T00:00:00');
+      document.getElementById(`${p}-prDate-display`).textContent =
+        d.toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' });
+      cancelPrEdit(p);
+      calculate(p);
+      scheduleSave();
+      setSyncStatus('saving');
+    }
+  });
 }
 
 // ── Boot: load from Firestore, then listen for real-time changes ──
@@ -943,6 +1082,8 @@ setInterval(tickCountdown, 1000);
 tickCountdown();
 
 // Expose functions to global scope (required for onclick handlers with type=module)
+window.closeModal = closeModal;
+window.executeModalAction = executeModalAction;
 window.switchTab = switchTab;
 window.addTrip = addTrip;
 window.removeTrip = removeTrip;

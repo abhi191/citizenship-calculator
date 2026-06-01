@@ -879,12 +879,12 @@ function renderTrips(p) {
         <div class="trip-date-cell">
           <span class="trip-date-label">Left Canada</span>
           <input type="date" value="${t.left}"
-            oninput="state['${p}'].trips.find(x=>x.id===${t.id}).left=this.value;renderTrips('${p}')" />
+            onchange="state['${p}'].trips.find(x=>x.id===${t.id}).left=this.value;renderTrips('${p}')" />
         </div>
         <div class="trip-date-cell">
           <span class="trip-date-label">Returned</span>
           <input type="date" value="${t.returned}"
-            oninput="state['${p}'].trips.find(x=>x.id===${t.id}).returned=this.value;renderTrips('${p}')" />
+            onchange="state['${p}'].trips.find(x=>x.id===${t.id}).returned=this.value;renderTrips('${p}')" />
         </div>
       </div>
     `;

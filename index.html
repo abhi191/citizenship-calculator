@@ -941,6 +941,15 @@ function confirmPrEdit(p) {
 
 setInterval(tickCountdown, 1000);
 tickCountdown();
+
+// Expose functions to global scope (required for onclick handlers with type=module)
+window.switchTab = switchTab;
+window.addTrip = addTrip;
+window.removeTrip = removeTrip;
+window.togglePrEdit = togglePrEdit;
+window.cancelPrEdit = cancelPrEdit;
+window.confirmPrEdit = confirmPrEdit;
+window.calculate = calculate;
 </script>
 </body>
 </html>

@@ -1138,6 +1138,7 @@ setInterval(tickCountdown, 1000);
 tickCountdown();
 
 // Expose functions to global scope (required for onclick handlers with type=module)
+window.state = state;
 window.closeModal = closeModal;
 window.executeModalAction = executeModalAction;
 window.switchTab = switchTab;
@@ -1147,6 +1148,7 @@ window.togglePrEdit = togglePrEdit;
 window.cancelPrEdit = cancelPrEdit;
 window.confirmPrEdit = confirmPrEdit;
 window.calculate = calculate;
+window.renderTrips = renderTrips;
 </script>
 </body>
 </html>

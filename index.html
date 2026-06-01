@@ -129,7 +129,7 @@ nav {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.65);
 }
 
 /* countdown units */
@@ -152,19 +152,19 @@ nav {
   min-width: 2ch;
   transition: color 0.1s;
 }
-.countdown-num.flash { color: rgba(255,255,255,0.3); }
+.countdown-num.flash { color: rgba(255,255,255,0.50); }
 .countdown-unit-label {
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.65);
   white-space: nowrap;
 }
 .countdown-sep {
   font-family: var(--mono);
   font-size: clamp(22px, 5vw, 34px);
-  color: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.30);
   padding-bottom: 18px;
   line-height: 1;
   align-self: end;
@@ -190,9 +190,9 @@ nav {
   align-items: center;
   font-size: 10px;
   font-family: var(--mono);
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.65);
 }
-.hero-meta-eligible { color: rgba(255,255,255,0.45); }
+.hero-meta-eligible { color: rgba(255,255,255,0.80); }
 
 /* badge */
 .badge {
@@ -201,7 +201,7 @@ nav {
   font-size: 11px; font-weight: 500;
 }
 .badge.green { background: rgba(80,200,120,0.18); color: #5dd49a; border: 1px solid rgba(93,212,154,0.2); }
-.badge.red-soft { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.1); }
+.badge.red-soft { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.80); border: 1px solid rgba(255,255,255,0.1); }
 .badge.amber { background: rgba(255,200,80,0.15); color: #f0c050; border: 1px solid rgba(240,192,80,0.2); }
 .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
@@ -294,55 +294,56 @@ input::placeholder { color: var(--text-3); }
 
 /* ── FOOTER ── */
 .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); text-align: center; line-height: 1.7; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .footer a { color: var(--text-2); text-decoration: underline; text-underline-offset: 2px; }
 </style>
 </head>
 <body>
 
-<nav>
+<nav aria-label="Site navigation">
   <div class="nav-brand">
     <div class="nav-flag"><span></span><span>🍁</span><span></span></div>
     PR → Citizenship
   </div>
   <div class="tab-group">
-    <button class="tab-btn active" onclick="switchTab('a', this)">Abhinav</button>
-    <button class="tab-btn" onclick="switchTab('s', this)">Shweta</button>
+    <button class="tab-btn active" onclick="switchTab('a', this)" role="tab" aria-selected="true" aria-controls="panel-a">Abhinav</button>
+    <button class="tab-btn" onclick="switchTab('s', this)" role="tab" aria-selected="false" aria-controls="panel-s">Shweta</button>
   </div>
   <span class="nav-req">1,095 days req.</span>
 </nav>
 
-<div class="page">
+<main class="page" aria-label="Citizenship eligibility tracker">
 
   <!-- ══ ABHINAV ══ -->
-  <div class="tab-panel active" id="panel-a">
+  <div class="tab-panel active" id="panel-a" role="tabpanel" aria-labelledby="tab-a">
     <div class="hero-card">
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-label">Time until eligible</span>
         <div id="a-badge"></div>
       </div>
-      <div class="countdown-grid">
+      <div class="countdown-grid" role="timer" aria-live="off" aria-atomic="true" aria-label="Abhinav: time remaining">
         <div class="countdown-unit">
           <div class="countdown-num" id="a-cd-days">—</div>
           <div class="countdown-unit-label">Days</div>
         </div>
-        <div class="countdown-sep">:</div>
+        <div class="countdown-sep" aria-hidden="true">:</div>
         <div class="countdown-unit">
           <div class="countdown-num" id="a-cd-hours">—</div>
           <div class="countdown-unit-label">Hours</div>
         </div>
-        <div class="countdown-sep">:</div>
+        <div class="countdown-sep" aria-hidden="true">:</div>
         <div class="countdown-unit">
           <div class="countdown-num" id="a-cd-mins">—</div>
           <div class="countdown-unit-label">Mins</div>
         </div>
-        <div class="countdown-sep">:</div>
+        <div class="countdown-sep" aria-hidden="true">:</div>
         <div class="countdown-unit">
           <div class="countdown-num" id="a-cd-secs">—</div>
           <div class="countdown-unit-label">Secs</div>
         </div>
       </div>
       <div class="hero-progress-track">
-        <div class="hero-progress-fill" id="a-bar" style="width:0%"></div>
+        <div class="hero-progress-fill" id="a-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Abhinav citizenship progress" style="width:0%"></div>
       </div>
       <div class="hero-meta">
         <span id="a-prLabel">PR date</span>
@@ -403,35 +404,35 @@ input::placeholder { color: var(--text-3); }
   </div>
 
   <!-- ══ SHWETA ══ -->
-  <div class="tab-panel" id="panel-s">
+  <div class="tab-panel" id="panel-s" role="tabpanel" aria-labelledby="tab-s">
     <div class="hero-card">
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-label">Time until eligible</span>
         <div id="s-badge"></div>
       </div>
-      <div class="countdown-grid">
+      <div class="countdown-grid" role="timer" aria-live="off" aria-atomic="true" aria-label="Shweta: time remaining">
         <div class="countdown-unit">
           <div class="countdown-num" id="s-cd-days">—</div>
           <div class="countdown-unit-label">Days</div>
         </div>
-        <div class="countdown-sep">:</div>
+        <div class="countdown-sep" aria-hidden="true">:</div>
         <div class="countdown-unit">
           <div class="countdown-num" id="s-cd-hours">—</div>
           <div class="countdown-unit-label">Hours</div>
         </div>
-        <div class="countdown-sep">:</div>
+        <div class="countdown-sep" aria-hidden="true">:</div>
         <div class="countdown-unit">
           <div class="countdown-num" id="s-cd-mins">—</div>
           <div class="countdown-unit-label">Mins</div>
         </div>
-        <div class="countdown-sep">:</div>
+        <div class="countdown-sep" aria-hidden="true">:</div>
         <div class="countdown-unit">
           <div class="countdown-num" id="s-cd-secs">—</div>
           <div class="countdown-unit-label">Secs</div>
         </div>
       </div>
       <div class="hero-progress-track">
-        <div class="hero-progress-fill" id="s-bar" style="width:0%"></div>
+        <div class="hero-progress-fill" id="s-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Shweta citizenship progress" style="width:0%"></div>
       </div>
       <div class="hero-meta">
         <span id="s-prLabel">PR date</span>
@@ -496,7 +497,7 @@ input::placeholder { color: var(--text-3); }
     <a href="https://www.canada.ca/en/immigration-refugees-citizenship/services/canadian-citizenship/become-citizen/eligibility.html" target="_blank">IRCC eligibility tool</a>
     before applying.
   </div>
-</div>
+</main>
 
 <script>
 const REQUIRED = 1095;
@@ -572,7 +573,9 @@ function calculate(p) {
   state[p].eligibleDate = eligible;
 
   // Progress bar & meta
-  document.getElementById(`${p}-bar`).style.width = pct + '%';
+  const barEl = document.getElementById(`${p}-bar`);
+  barEl.style.width = pct + '%';
+  barEl.setAttribute('aria-valuenow', pct);
   document.getElementById(`${p}-pct`).textContent = pct + '%';
   document.getElementById(`${p}-prLabel`).textContent = fmtShort(prDate);
   document.getElementById(`${p}-eligLabel`).textContent = fmtShort(eligible);
@@ -640,6 +643,12 @@ function tickCountdown() {
     hEl.textContent = pad(hours);
     mEl.textContent = pad(mins);
     sEl.textContent = newSecs;
+
+    // Update screen reader region every minute
+    if (secs === 0) {
+      const sr = document.getElementById('sr-countdown');
+      if (sr) sr.textContent = `${days} days, ${pad(hours)} hours, ${pad(mins)} minutes remaining`;
+    }
   });
 }
 
@@ -656,7 +665,7 @@ function renderTrips(p) {
         <input type="text" value="${t.name}" placeholder="Destination"
           oninput="state['${p}'].trips.find(x=>x.id===${t.id}).name=this.value;calculate('${p}')" />
         <span class="trip-days-badge ${days > 0 ? 'has-days' : ''}">${days > 0 ? days + 'd away' : '—'}</span>
-        <button class="btn-del" onclick="removeTrip('${p}',${t.id})" title="Remove">
+        <button class="btn-del" onclick="removeTrip('${p}',${t.id})" title="Remove trip" aria-label="Remove trip">
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </button>
       </div>
@@ -691,10 +700,22 @@ function removeTrip(p, id) {
 
 function switchTab(who, btn) {
   document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => {
+    el.classList.remove('active');
+    el.setAttribute('aria-selected', 'false');
+  });
   document.getElementById(`panel-${who}`).classList.add('active');
   btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
 }
+
+// Accessible live region for screen readers
+const srRegion = document.createElement("div");
+srRegion.id = "sr-countdown";
+srRegion.className = "sr-only";
+srRegion.setAttribute("aria-live", "polite");
+srRegion.setAttribute("aria-atomic", "true");
+document.body.appendChild(srRegion);
 
 // Init
 renderTrips('a');

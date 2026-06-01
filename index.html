@@ -879,11 +879,14 @@ function renderTrips(p) {
         <div class="trip-date-cell">
           <span class="trip-date-label">Left Canada</span>
           <input type="date" value="${t.left}"
+            min="${state[p].prDate}"
+            ${t.returned ? `max="${t.returned}"` : ''}
             onchange="confirmTripDateChange('${p}',${t.id},'left',this.value,this)" />
         </div>
         <div class="trip-date-cell">
           <span class="trip-date-label">Returned</span>
           <input type="date" value="${t.returned}"
+            min="${t.left || state[p].prDate}"
             onchange="confirmTripDateChange('${p}',${t.id},'returned',this.value,this)" />
         </div>
       </div>
@@ -934,6 +937,20 @@ document.addEventListener('keydown', (e) => {
 function confirmTripDateChange(p, id, field, newVal, inputEl) {
   const trip = state[p].trips.find(t => t.id === id);
   const oldVal = trip[field];
+
+  // Guard: returned must not be before left
+  const left     = field === 'left'     ? newVal : trip.left;
+  const returned = field === 'returned' ? newVal : trip.returned;
+  if (left && returned && returned < left) {
+    inputEl.value = oldVal;
+    return;
+  }
+  // Guard: dates must not be before PR date
+  if (newVal && newVal < state[p].prDate) {
+    inputEl.value = oldVal;
+    return;
+  }
+
   const label = field === 'left' ? 'Left Canada' : 'Returned';
   const dest = trip.name || 'this trip';
   showModal({

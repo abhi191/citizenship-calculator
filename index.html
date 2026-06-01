@@ -68,34 +68,68 @@ nav {
 .nav-flag span:nth-child(1), .nav-flag span:nth-child(3) { background: var(--red); }
 .nav-flag span:nth-child(2) { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 9px; }
 
-.tab-group {
-  display: flex;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 3px;
-  gap: 2px;
-}
-.tab-btn {
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 5px 16px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  color: var(--text-2);
-  background: transparent;
-  letter-spacing: -0.1px;
-}
-.tab-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
-.tab-btn:not(.active):hover { color: var(--text); }
+/* tab switcher styles removed from nav — now in body */
 
 .nav-req { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
 
 /* ── LAYOUT ── */
-.page { max-width: 640px; margin: 0 auto; padding: 32px 20px 64px; }
+.page { max-width: 640px; margin: 0 auto; padding: 24px 20px 64px; }
+
+/* ── In-body person switcher ── */
+.person-switcher {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.person-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  box-shadow: var(--shadow);
+}
+.person-tab:hover:not(.active) {
+  border-color: var(--border-strong);
+  background: var(--surface2);
+}
+.person-tab.active {
+  border-color: var(--text);
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--text), var(--shadow);
+}
+.person-tab-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: -0.2px;
+  transition: color 0.15s;
+}
+.person-tab.active .person-tab-name { color: var(--text); }
+.person-tab-days {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-3);
+  transition: color 0.15s;
+}
+.person-tab.active .person-tab-days { color: var(--text-2); }
+.person-tab-indicator {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  margin-left: auto;
+  align-self: flex-start;
+  margin-top: 2px;
+  transition: background 0.15s;
+}
+.person-tab.active .person-tab-indicator { background: var(--green); }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
@@ -403,10 +437,6 @@ input::placeholder { color: var(--text-3); }
   <div class="nav-brand">
     <div class="nav-flag"><span></span><span>🍁</span><span></span></div>
     PR → Citizenship
-  </div>
-  <div class="tab-group">
-    <button class="tab-btn active" onclick="switchTab('a', this)" role="tab" aria-selected="true" aria-controls="panel-a">Abhinav</button>
-    <button class="tab-btn" onclick="switchTab('s', this)" role="tab" aria-selected="false" aria-controls="panel-s">Shweta</button>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
     <span class="nav-req">1,095 days req.</span>
@@ -752,6 +782,14 @@ function calculate(p) {
   document.getElementById(`${p}-tlDed`).textContent     = ded.toLocaleString();
   document.getElementById(`${p}-tlPresent`).textContent = present.toLocaleString();
   document.getElementById(`${p}-tlElig`).textContent    = fmtDate(eligible);
+
+  // Update person switcher summary
+  const summary = document.getElementById(`${p}-tab-summary`);
+  if (summary) {
+    summary.textContent = daysLeft === 0
+      ? 'Eligible now!'
+      : `${daysLeft.toLocaleString()} days left`;
+  }
 }
 
 // Live countdown tick — runs every second
@@ -909,7 +947,7 @@ function removeTrip(p, id) {
 
 function switchTab(who, btn) {
   document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => {
+  document.querySelectorAll('.person-tab').forEach(el => {
     el.classList.remove('active');
     el.setAttribute('aria-selected', 'false');
   });

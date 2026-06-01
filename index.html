@@ -27,7 +27,6 @@
   --sans: 'Sora', sans-serif;
   --radius: 10px;
   --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
 }
 
 html { font-size: 15px; }
@@ -56,8 +55,7 @@ nav {
   letter-spacing: -0.2px;
 }
 .nav-flag {
-  width: 22px;
-  height: 16px;
+  width: 22px; height: 16px;
   display: inline-grid;
   grid-template-columns: 1fr 2fr 1fr;
   border-radius: 3px;
@@ -89,102 +87,121 @@ nav {
   background: transparent;
   letter-spacing: -0.1px;
 }
-.tab-btn.active {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow);
-}
+.tab-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 .tab-btn:not(.active):hover { color: var(--text); }
 
-.nav-req {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text-3);
-  letter-spacing: 0;
-}
+.nav-req { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
 
 /* ── LAYOUT ── */
 .page { max-width: 640px; margin: 0 auto; padding: 32px 20px 64px; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-/* ── HERO CARD ── */
+/* ── HERO COUNTDOWN ── */
 .hero-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px;
+  background: var(--text);
+  border-radius: 20px;
+  padding: 32px 32px 28px;
   margin-bottom: 16px;
-  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
 }
-.hero-top {
+.hero-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 39px,
+    rgba(255,255,255,0.025) 39px,
+    rgba(255,255,255,0.025) 40px
+  );
+  pointer-events: none;
+}
+.hero-eyebrow {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
 }
-.hero-label {
-  font-size: 11px;
+.hero-eyebrow-label {
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-3);
-  margin-bottom: 4px;
+  color: rgba(255,255,255,0.35);
 }
-.hero-days {
-  font-family: var(--mono);
-  font-size: 52px;
-  font-weight: 500;
-  line-height: 1;
-  color: var(--text);
-  letter-spacing: -2px;
-}
-.hero-days-suffix {
-  font-family: var(--mono);
-  font-size: 18px;
-  color: var(--text-3);
-  font-weight: 400;
-  letter-spacing: -0.5px;
-}
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: -0.1px;
-  flex-shrink: 0;
-}
-.badge.green { background: var(--green-bg); color: var(--green); }
-.badge.red-soft { background: var(--red-bg); color: var(--red); }
-.badge.amber { background: var(--amber-bg); color: var(--amber); }
-.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-/* Progress track */
-.progress-track {
-  position: relative;
-  height: 6px;
-  background: var(--surface2);
-  border-radius: 100px;
-  border: 1px solid var(--border);
-  overflow: hidden;
-  margin-bottom: 8px;
+/* countdown units */
+.countdown-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+  align-items: end;
+  gap: 4px;
+  margin-bottom: 32px;
 }
-.progress-fill {
+.countdown-unit { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.countdown-num {
+  font-family: var(--mono);
+  font-size: clamp(34px, 9vw, 56px);
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -2px;
+  text-align: center;
+  min-width: 2ch;
+  transition: color 0.1s;
+}
+.countdown-num.flash { color: rgba(255,255,255,0.3); }
+.countdown-unit-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  white-space: nowrap;
+}
+.countdown-sep {
+  font-family: var(--mono);
+  font-size: clamp(22px, 5vw, 34px);
+  color: rgba(255,255,255,0.12);
+  padding-bottom: 18px;
+  line-height: 1;
+  align-self: end;
+}
+
+/* progress */
+.hero-progress-track {
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.hero-progress-fill {
   height: 100%;
   border-radius: 100px;
-  background: var(--text);
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255,255,255,0.55);
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
 }
-.progress-meta {
+.hero-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
-  color: var(--text-3);
+  align-items: center;
+  font-size: 10px;
   font-family: var(--mono);
+  color: rgba(255,255,255,0.2);
 }
+.hero-meta-eligible { color: rgba(255,255,255,0.45); }
+
+/* badge */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 6px;
+  font-size: 11px; font-weight: 500;
+}
+.badge.green { background: rgba(80,200,120,0.18); color: #5dd49a; border: 1px solid rgba(93,212,154,0.2); }
+.badge.red-soft { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.1); }
+.badge.amber { background: rgba(255,200,80,0.15); color: #f0c050; border: 1px solid rgba(240,192,80,0.2); }
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
 /* ── STAT ROW ── */
 .stat-row {
@@ -200,7 +217,7 @@ nav {
   padding: 16px;
   box-shadow: var(--shadow);
 }
-.stat-box-label { font-size: 11px; color: var(--text-3); font-weight: 500; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-box-label { font-size: 10px; color: var(--text-3); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
 .stat-box-val { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--text); letter-spacing: -0.5px; line-height: 1; }
 .stat-box-val.muted { color: var(--text-2); }
 .stat-box-val.red { color: var(--red); }
@@ -208,156 +225,63 @@ nav {
 
 /* ── SECTION ── */
 .section { margin-top: 28px; }
-.section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.section-title {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-2);
-}
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); }
 
-/* ── INPUTS ── */
-.field-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-}
-.field-row {
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  height: 48px;
-  border-bottom: 1px solid var(--border);
-  gap: 12px;
-}
+/* ── FIELD CARD ── */
+.field-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.field-row { display: flex; align-items: center; padding: 0 16px; height: 48px; border-bottom: 1px solid var(--border); gap: 12px; }
 .field-row:last-child { border-bottom: none; }
 .field-label { font-size: 12px; color: var(--text-2); font-weight: 500; min-width: 120px; }
 input[type="date"], input[type="text"] {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--text);
-  background: transparent;
-  text-align: right;
-  color-scheme: light;
+  flex: 1; border: none; outline: none;
+  font-family: var(--mono); font-size: 13px;
+  color: var(--text); background: transparent;
+  text-align: right; color-scheme: light;
 }
 input[type="text"] { font-family: var(--sans); font-size: 13px; text-align: right; }
 input::placeholder { color: var(--text-3); }
 
 /* ── TRIPS ── */
 .trips-list { display: flex; flex-direction: column; gap: 8px; }
-.trip-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-}
-.trip-header {
-  display: flex;
-  align-items: center;
-  padding: 0 12px 0 16px;
-  height: 44px;
-  border-bottom: 1px solid var(--border);
-  gap: 10px;
-}
-.trip-index {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text-3);
-  min-width: 20px;
-}
-.trip-header input[type="text"] {
-  flex: 1;
-  text-align: left;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--sans);
-}
+.trip-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.trip-header { display: flex; align-items: center; padding: 0 12px 0 16px; height: 44px; border-bottom: 1px solid var(--border); gap: 10px; }
+.trip-index { font-family: var(--mono); font-size: 11px; color: var(--text-3); min-width: 20px; }
+.trip-header input[type="text"] { flex: 1; text-align: left; font-size: 13px; font-weight: 500; font-family: var(--sans); }
 .trip-days-badge {
-  font-family: var(--mono);
-  font-size: 11px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 2px 7px;
-  color: var(--text-2);
-  white-space: nowrap;
-  flex-shrink: 0;
+  font-family: var(--mono); font-size: 11px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 5px; padding: 2px 7px;
+  color: var(--text-2); white-space: nowrap; flex-shrink: 0;
 }
 .trip-days-badge.has-days { background: var(--red-bg); border-color: #f0c0ba; color: var(--red); }
 .btn-del {
-  width: 28px; height: 28px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: transparent;
-  cursor: pointer;
-  color: var(--text-3);
-  font-size: 14px;
+  width: 28px; height: 28px; border-radius: 6px;
+  border: 1px solid var(--border); background: transparent;
+  cursor: pointer; color: var(--text-3); font-size: 14px;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-  flex-shrink: 0;
+  transition: all 0.15s; flex-shrink: 0;
 }
 .btn-del:hover { background: var(--red-bg); color: var(--red); border-color: #f0c0ba; }
-.trip-dates {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-.trip-date-cell {
-  padding: 10px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.trip-dates { display: grid; grid-template-columns: 1fr 1fr; }
+.trip-date-cell { padding: 10px 16px; display: flex; flex-direction: column; gap: 2px; }
 .trip-date-cell:first-child { border-right: 1px solid var(--border); }
 .trip-date-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-3); font-weight: 500; }
 .trip-date-cell input[type="date"] { text-align: left; font-size: 12px; width: 100%; padding: 0; }
 
 .btn-add-trip {
-  width: 100%;
-  height: 40px;
-  background: var(--surface);
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
-  font-family: var(--sans);
-  font-size: 13px;
-  color: var(--text-3);
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  width: 100%; height: 40px;
+  background: var(--surface); border: 1px dashed var(--border-strong);
+  border-radius: var(--radius); font-family: var(--sans); font-size: 13px;
+  color: var(--text-3); cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
   margin-top: 8px;
 }
-.btn-add-trip:hover { background: var(--surface2); color: var(--text-2); border-color: var(--border-strong); }
+.btn-add-trip:hover { background: var(--surface2); color: var(--text-2); }
 
 /* ── TIMELINE TABLE ── */
-.timeline-table {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-}
-.tl-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
+.timeline-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.tl-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
 .tl-row:last-child { border-bottom: none; }
 .tl-row.highlight { background: var(--surface2); }
 .tl-key { color: var(--text-2); }
@@ -367,15 +291,7 @@ input::placeholder { color: var(--text-3); }
 .tl-val.muted { color: var(--text-3); }
 
 /* ── FOOTER ── */
-.footer {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--text-3);
-  text-align: center;
-  line-height: 1.7;
-}
+.footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-3); text-align: center; line-height: 1.7; }
 .footer a { color: var(--text-2); text-decoration: underline; text-underline-offset: 2px; }
 </style>
 </head>
@@ -383,11 +299,7 @@ input::placeholder { color: var(--text-3); }
 
 <nav>
   <div class="nav-brand">
-    <div class="nav-flag">
-      <span></span>
-      <span>🍁</span>
-      <span></span>
-    </div>
+    <div class="nav-flag"><span></span><span>🍁</span><span></span></div>
     PR → Citizenship
   </div>
   <div class="tab-group">
@@ -401,38 +313,52 @@ input::placeholder { color: var(--text-3); }
 
   <!-- ══ ABHINAV ══ -->
   <div class="tab-panel active" id="panel-a">
-
     <div class="hero-card">
-      <div class="hero-top">
-        <div>
-          <div class="hero-label">Days Present in Canada</div>
-          <div>
-            <span class="hero-days" id="a-daysPresent">—</span>
-            <span class="hero-days-suffix"> / 1,095</span>
-          </div>
-        </div>
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-label">Time until eligible</span>
         <div id="a-badge"></div>
       </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="a-bar" style="width:0%"></div>
+      <div class="countdown-grid">
+        <div class="countdown-unit">
+          <div class="countdown-num" id="a-cd-days">—</div>
+          <div class="countdown-unit-label">Days</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit">
+          <div class="countdown-num" id="a-cd-hours">—</div>
+          <div class="countdown-unit-label">Hours</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit">
+          <div class="countdown-num" id="a-cd-mins">—</div>
+          <div class="countdown-unit-label">Mins</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit">
+          <div class="countdown-num" id="a-cd-secs">—</div>
+          <div class="countdown-unit-label">Secs</div>
+        </div>
       </div>
-      <div class="progress-meta">
+      <div class="hero-progress-track">
+        <div class="hero-progress-fill" id="a-bar" style="width:0%"></div>
+      </div>
+      <div class="hero-meta">
         <span id="a-prLabel">PR date</span>
-        <span id="a-pct">0%</span>
-        <span>Eligible</span>
+        <span id="a-pct" class="hero-meta-eligible">0%</span>
+        <span id="a-eligLabel">Eligible date</span>
       </div>
     </div>
 
     <div class="stat-row">
       <div class="stat-box">
-        <div class="stat-box-label">Away</div>
-        <div class="stat-box-val red" id="a-away">—</div>
-        <div class="stat-box-sub">days deducted</div>
+        <div class="stat-box-label">Days Present</div>
+        <div class="stat-box-val" id="a-present">—</div>
+        <div class="stat-box-sub">of 1,095 required</div>
       </div>
       <div class="stat-box">
-        <div class="stat-box-label">Remaining</div>
-        <div class="stat-box-val" id="a-left">—</div>
-        <div class="stat-box-sub">days to go</div>
+        <div class="stat-box-label">Days Away</div>
+        <div class="stat-box-val red" id="a-away">—</div>
+        <div class="stat-box-sub">trips deducted</div>
       </div>
       <div class="stat-box">
         <div class="stat-box-label">Eligible on</div>
@@ -452,9 +378,7 @@ input::placeholder { color: var(--text-3); }
     </div>
 
     <div class="section">
-      <div class="section-head">
-        <span class="section-title">Trips Outside Canada</span>
-      </div>
+      <div class="section-head"><span class="section-title">Trips Outside Canada</span></div>
       <div class="trips-list" id="a-tripList"></div>
       <button class="btn-add-trip" onclick="addTrip('a')">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -478,38 +402,52 @@ input::placeholder { color: var(--text-3); }
 
   <!-- ══ SHWETA ══ -->
   <div class="tab-panel" id="panel-s">
-
     <div class="hero-card">
-      <div class="hero-top">
-        <div>
-          <div class="hero-label">Days Present in Canada</div>
-          <div>
-            <span class="hero-days" id="s-daysPresent">—</span>
-            <span class="hero-days-suffix"> / 1,095</span>
-          </div>
-        </div>
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-label">Time until eligible</span>
         <div id="s-badge"></div>
       </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="s-bar" style="width:0%"></div>
+      <div class="countdown-grid">
+        <div class="countdown-unit">
+          <div class="countdown-num" id="s-cd-days">—</div>
+          <div class="countdown-unit-label">Days</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit">
+          <div class="countdown-num" id="s-cd-hours">—</div>
+          <div class="countdown-unit-label">Hours</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit">
+          <div class="countdown-num" id="s-cd-mins">—</div>
+          <div class="countdown-unit-label">Mins</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit">
+          <div class="countdown-num" id="s-cd-secs">—</div>
+          <div class="countdown-unit-label">Secs</div>
+        </div>
       </div>
-      <div class="progress-meta">
+      <div class="hero-progress-track">
+        <div class="hero-progress-fill" id="s-bar" style="width:0%"></div>
+      </div>
+      <div class="hero-meta">
         <span id="s-prLabel">PR date</span>
-        <span id="s-pct">0%</span>
-        <span>Eligible</span>
+        <span id="s-pct" class="hero-meta-eligible">0%</span>
+        <span id="s-eligLabel">Eligible date</span>
       </div>
     </div>
 
     <div class="stat-row">
       <div class="stat-box">
-        <div class="stat-box-label">Away</div>
-        <div class="stat-box-val red" id="s-away">—</div>
-        <div class="stat-box-sub">days deducted</div>
+        <div class="stat-box-label">Days Present</div>
+        <div class="stat-box-val" id="s-present">—</div>
+        <div class="stat-box-sub">of 1,095 required</div>
       </div>
       <div class="stat-box">
-        <div class="stat-box-label">Remaining</div>
-        <div class="stat-box-val" id="s-left">—</div>
-        <div class="stat-box-sub">days to go</div>
+        <div class="stat-box-label">Days Away</div>
+        <div class="stat-box-val red" id="s-away">—</div>
+        <div class="stat-box-sub">trips deducted</div>
       </div>
       <div class="stat-box">
         <div class="stat-box-label">Eligible on</div>
@@ -529,9 +467,7 @@ input::placeholder { color: var(--text-3); }
     </div>
 
     <div class="section">
-      <div class="section-head">
-        <span class="section-title">Trips Outside Canada</span>
-      </div>
+      <div class="section-head"><span class="section-title">Trips Outside Canada</span></div>
       <div class="trips-list" id="s-tripList"></div>
       <button class="btn-add-trip" onclick="addTrip('s')">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -565,40 +501,37 @@ const REQUIRED = 1095;
 
 const state = {
   a: {
+    eligibleDate: null,
     trips: [
-      { id:1, name:'UK',                       left:'2023-04-01', returned:'2024-04-16' },
-      { id:2, name:'US — Washington, New York', left:'2024-07-14', returned:'2024-07-21' },
-      { id:3, name:'US — California',           left:'2024-09-03', returned:'2024-09-13' },
-      { id:4, name:'India',                     left:'2024-11-28', returned:'2025-01-02' },
-      { id:5, name:'US — Seattle',              left:'2025-04-27', returned:'2025-05-07' },
-      { id:6, name:'US — Boston',               left:'2026-05-26', returned:'2026-05-31' },
+      { id:1, name:'UK',                        left:'2023-04-01', returned:'2024-04-16' },
+      { id:2, name:'US — Washington, New York',  left:'2024-07-14', returned:'2024-07-21' },
+      { id:3, name:'US — California',            left:'2024-09-03', returned:'2024-09-13' },
+      { id:4, name:'India',                      left:'2024-11-28', returned:'2025-01-02' },
+      { id:5, name:'US — Seattle',               left:'2025-04-27', returned:'2025-05-07' },
+      { id:6, name:'US — Boston',                left:'2026-05-26', returned:'2026-05-31' },
     ],
     nextId: 7,
   },
   s: {
+    eligibleDate: null,
     trips: [
-      { id:1, name:'UK',                       left:'2023-04-01', returned:'2024-04-16' },
-      { id:2, name:'US — Washington, New York', left:'2024-07-14', returned:'2024-07-21' },
-      { id:3, name:'US — California',           left:'2024-09-03', returned:'2024-09-13' },
-      { id:4, name:'India',                     left:'2024-11-28', returned:'2025-01-02' },
-      { id:5, name:'US — Atlanta',              left:'2025-03-04', returned:'2025-03-06' },
-      { id:6, name:'US — SF & Seattle',         left:'2025-04-22', returned:'2025-05-07' },
-      { id:7, name:'UK',                        left:'2026-01-10', returned:'2026-01-18' },
-      { id:8, name:'US — Boston',               left:'2026-05-26', returned:'2026-05-31' },
+      { id:1, name:'UK',                        left:'2023-04-01', returned:'2024-04-16' },
+      { id:2, name:'US — Washington, New York',  left:'2024-07-14', returned:'2024-07-21' },
+      { id:3, name:'US — California',            left:'2024-09-03', returned:'2024-09-13' },
+      { id:4, name:'India',                      left:'2024-11-28', returned:'2025-01-02' },
+      { id:5, name:'US — Atlanta',               left:'2025-03-04', returned:'2025-03-06' },
+      { id:6, name:'US — SF & Seattle',          left:'2025-04-22', returned:'2025-05-07' },
+      { id:7, name:'UK',                         left:'2026-01-10', returned:'2026-01-18' },
+      { id:8, name:'US — Boston',                left:'2026-05-26', returned:'2026-05-31' },
     ],
     nextId: 9,
   },
 };
 
+function pad(n) { return String(n).padStart(2, '0'); }
 function dBetween(a, b) { return Math.round((b - a) / 86400000); }
-
-function fmtDate(d) {
-  return d.toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' });
-}
-
-function fmtShort(d) {
-  return d.toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'2-digit' });
-}
+function fmtDate(d) { return d.toLocaleDateString('en-CA', { year:'numeric', month:'short', day:'numeric' }); }
+function fmtShort(d) { return d.toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'2-digit' }); }
 
 function calcDeducted(p, prDate, today) {
   let out = 0;
@@ -628,20 +561,23 @@ function calculate(p) {
   const cal     = dBetween(prDate, today);
   const ded     = calcDeducted(p, prDate, today);
   const present = Math.max(0, cal - ded);
-  const left    = Math.max(0, REQUIRED - present);
-  const pct     = Math.min(100, Math.round(present / REQUIRED * 100));
-  const eligible = new Date(today); eligible.setDate(today.getDate() + left);
+  const daysLeft = Math.max(0, REQUIRED - present);
+  const pct      = Math.min(100, Math.round(present / REQUIRED * 100));
 
-  document.getElementById(`${p}-daysPresent`).textContent = present.toLocaleString();
+  // Eligible date: today midnight + daysLeft days
+  const eligible = new Date(today);
+  eligible.setDate(today.getDate() + daysLeft);
+  state[p].eligibleDate = eligible;
+
+  // Progress bar & meta
   document.getElementById(`${p}-bar`).style.width = pct + '%';
   document.getElementById(`${p}-pct`).textContent = pct + '%';
   document.getElementById(`${p}-prLabel`).textContent = fmtShort(prDate);
-  document.getElementById(`${p}-away`).textContent = ded.toLocaleString();
-  document.getElementById(`${p}-left`).textContent = left.toLocaleString();
-  document.getElementById(`${p}-date`).textContent = fmtDate(eligible);
+  document.getElementById(`${p}-eligLabel`).textContent = fmtShort(eligible);
 
+  // Badge
   const badge = document.getElementById(`${p}-badge`);
-  if (left === 0) {
+  if (daysLeft === 0) {
     badge.innerHTML = `<span class="badge green"><span class="badge-dot"></span>Eligible now</span>`;
   } else if (pct >= 60) {
     badge.innerHTML = `<span class="badge amber"><span class="badge-dot"></span>${pct}% complete</span>`;
@@ -649,12 +585,60 @@ function calculate(p) {
     badge.innerHTML = `<span class="badge red-soft"><span class="badge-dot"></span>${pct}% complete</span>`;
   }
 
+  // Stat boxes
+  document.getElementById(`${p}-present`).textContent = present.toLocaleString();
+  document.getElementById(`${p}-away`).textContent = ded.toLocaleString();
+  document.getElementById(`${p}-date`).textContent = fmtDate(eligible);
+
+  // Timeline
   document.getElementById(`${p}-tlPR`).textContent      = fmtDate(prDate);
   document.getElementById(`${p}-tlToday`).textContent   = fmtDate(today);
   document.getElementById(`${p}-tlCal`).textContent     = cal.toLocaleString();
   document.getElementById(`${p}-tlDed`).textContent     = ded.toLocaleString();
   document.getElementById(`${p}-tlPresent`).textContent = present.toLocaleString();
   document.getElementById(`${p}-tlElig`).textContent    = fmtDate(eligible);
+}
+
+// Live countdown tick — runs every second
+function tickCountdown() {
+  ['a', 's'].forEach(p => {
+    const target = state[p].eligibleDate;
+    if (!target) return;
+
+    const now = new Date();
+    const diff = target - now;
+
+    const dEl = document.getElementById(`${p}-cd-days`);
+    const hEl = document.getElementById(`${p}-cd-hours`);
+    const mEl = document.getElementById(`${p}-cd-mins`);
+    const sEl = document.getElementById(`${p}-cd-secs`);
+
+    if (diff <= 0) {
+      dEl.textContent = '00';
+      hEl.textContent = '00';
+      mEl.textContent = '00';
+      sEl.textContent = '00';
+      return;
+    }
+
+    const totalSecs = Math.floor(diff / 1000);
+    const days  = Math.floor(totalSecs / 86400);
+    const hours = Math.floor((totalSecs % 86400) / 3600);
+    const mins  = Math.floor((totalSecs % 3600) / 60);
+    const secs  = totalSecs % 60;
+
+    const newSecs = pad(secs);
+    // Flash seconds on change
+    if (sEl.textContent !== newSecs) {
+      sEl.classList.add('flash');
+      setTimeout(() => sEl.classList.remove('flash'), 100);
+    }
+
+    dEl.textContent = days.toLocaleString();
+    hEl.textContent = pad(hours);
+    mEl.textContent = pad(mins);
+    sEl.textContent = newSecs;
+  });
 }
 
 function renderTrips(p) {
@@ -710,8 +694,11 @@ function switchTab(who, btn) {
   btn.classList.add('active');
 }
 
+// Init
 renderTrips('a');
 renderTrips('s');
+setInterval(tickCountdown, 1000);
+tickCountdown();
 </script>
 </body>
 </html>

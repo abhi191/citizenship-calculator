@@ -309,7 +309,10 @@ input::placeholder { color: var(--text-3); }
     <button class="tab-btn active" onclick="switchTab('a', this)" role="tab" aria-selected="true" aria-controls="panel-a">Abhinav</button>
     <button class="tab-btn" onclick="switchTab('s', this)" role="tab" aria-selected="false" aria-controls="panel-s">Shweta</button>
   </div>
-  <span class="nav-req">1,095 days req.</span>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="nav-req">1,095 days req.</span>
+    <span id="sync-status" style="font-size:11px;font-family:var(--mono);color:var(--text-3);transition:color 0.3s;">↻ Loading…</span>
+  </div>
 </nav>
 
 <main class="page" aria-label="Citizenship eligibility tracker">
@@ -499,7 +502,23 @@ input::placeholder { color: var(--text-3); }
   </div>
 </main>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4Rq8V6w-B51vbkSPyNU7l8XgXnzEV-OA",
+  authDomain: "citizenship-tracker-35f56.firebaseapp.com",
+  projectId: "citizenship-tracker-35f56",
+  storageBucket: "citizenship-tracker-35f56.firebasestorage.app",
+  messagingSenderId: "887172941454",
+  appId: "1:887172941454:web:8b57bba57fc0e626a6ebdf"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const DOC = doc(db, 'tracker', 'shared');
+
 const REQUIRED = 1095;
 
 const state = {
@@ -717,9 +736,6 @@ srRegion.setAttribute("aria-live", "polite");
 srRegion.setAttribute("aria-atomic", "true");
 document.body.appendChild(srRegion);
 
-// ── localStorage persistence ──
-const STORAGE_KEY = 'citizenship-tracker-v1';
-
 const DEFAULTS = {
   a: {
     prDate: '2023-03-26',
@@ -749,54 +765,76 @@ const DEFAULTS = {
   },
 };
 
-function saveToStorage() {
-  try {
-    const payload = {
-      a: { prDate: document.getElementById('a-prDate').value, trips: state.a.trips, nextId: state.a.nextId },
-      s: { prDate: document.getElementById('s-prDate').value, trips: state.s.trips, nextId: state.s.nextId },
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  } catch(e) { /* storage unavailable */ }
+// ── Firestore save (debounced 800ms) ──
+let saveTimer = null;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await setDoc(DOC, {
+        a: { prDate: document.getElementById('a-prDate').value, trips: state.a.trips, nextId: state.a.nextId },
+        s: { prDate: document.getElementById('s-prDate').value, trips: state.s.trips, nextId: state.s.nextId },
+      });
+    } catch(e) { console.warn('Firestore save failed', e); }
+  }, 800);
 }
 
-function loadFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch(e) { return null; }
+// ── Apply data from Firestore doc or defaults ──
+function applyData(data) {
+  ['a', 's'].forEach(p => {
+    const src = data?.[p] || DEFAULTS[p];
+    state[p].trips  = src.trips  || DEFAULTS[p].trips;
+    state[p].nextId = src.nextId || DEFAULTS[p].nextId;
+    document.getElementById(`${p}-prDate`).value = src.prDate || DEFAULTS[p].prDate;
+    renderTrips(p);
+  });
 }
 
-// Init — load saved data or fall back to defaults
-const saved = loadFromStorage();
-['a', 's'].forEach(p => {
-  const src = saved?.[p] || DEFAULTS[p];
-  state[p].trips = src.trips;
-  state[p].nextId = src.nextId;
-  const prVal = src.prDate || DEFAULTS[p].prDate;
-  document.getElementById(`${p}-prDate`).value = prVal;
-});
+// ── Show sync status indicator ──
+function setSyncStatus(status) {
+  // status: 'synced' | 'saving' | 'offline'
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  const labels = { synced: '✓ Synced', saving: '↑ Saving…', offline: '⚠ Offline' };
+  const colors = { synced: 'var(--green)', saving: 'var(--amber)', offline: 'var(--red)' };
+  el.textContent = labels[status];
+  el.style.color = colors[status];
+}
 
-// Patch save into every mutation point
+// Patch save into mutations
 const _origRenderTrips = renderTrips;
-renderTrips = function(p) { _origRenderTrips(p); saveToStorage(); };
+renderTrips = function(p) { _origRenderTrips(p); scheduleSave(); setSyncStatus('saving'); };
 
 const _origAddTrip = addTrip;
-addTrip = function(p) { _origAddTrip(p); saveToStorage(); };
+addTrip = function(p) { _origAddTrip(p); };
 
 const _origRemoveTrip = removeTrip;
-removeTrip = function(p, id) { _origRemoveTrip(p, id); saveToStorage(); };
+removeTrip = function(p, id) { _origRemoveTrip(p, id); };
 
-// Save when PR date changes
-document.getElementById('a-prDate').addEventListener('input', saveToStorage);
-document.getElementById('s-prDate').addEventListener('input', saveToStorage);
+document.getElementById('a-prDate').addEventListener('input', () => { calculate('a'); scheduleSave(); setSyncStatus('saving'); });
+document.getElementById('s-prDate').addEventListener('input', () => { calculate('s'); scheduleSave(); setSyncStatus('saving'); });
+document.getElementById('a-tripList').addEventListener('input', () => { scheduleSave(); setSyncStatus('saving'); });
+document.getElementById('s-tripList').addEventListener('input', () => { scheduleSave(); setSyncStatus('saving'); });
 
-// Also save on any name/date edits inside trip cards (delegated)
-document.getElementById('a-tripList').addEventListener('input', saveToStorage);
-document.getElementById('s-tripList').addEventListener('input', saveToStorage);
+// ── Boot: load from Firestore, then listen for real-time changes ──
+(async () => {
+  try {
+    const snap = await getDoc(DOC);
+    applyData(snap.exists() ? snap.data() : null);
+    setSyncStatus('synced');
 
-renderTrips('a');
-renderTrips('s');
+    // Real-time listener — updates if another device saves
+    onSnapshot(DOC, (snap) => {
+      applyData(snap.exists() ? snap.data() : null);
+      setSyncStatus('synced');
+    });
+  } catch(e) {
+    console.warn('Firestore unavailable, using defaults', e);
+    applyData(null);
+    setSyncStatus('offline');
+  }
+})();
+
 setInterval(tickCountdown, 1000);
 tickCountdown();
 </script>

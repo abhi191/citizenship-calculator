@@ -717,7 +717,84 @@ srRegion.setAttribute("aria-live", "polite");
 srRegion.setAttribute("aria-atomic", "true");
 document.body.appendChild(srRegion);
 
-// Init
+// ── localStorage persistence ──
+const STORAGE_KEY = 'citizenship-tracker-v1';
+
+const DEFAULTS = {
+  a: {
+    prDate: '2023-03-26',
+    trips: [
+      { id:1, name:'UK',                        left:'2023-04-01', returned:'2024-04-16' },
+      { id:2, name:'US — Washington, New York',  left:'2024-07-14', returned:'2024-07-21' },
+      { id:3, name:'US — California',            left:'2024-09-03', returned:'2024-09-13' },
+      { id:4, name:'India',                      left:'2024-11-28', returned:'2025-01-02' },
+      { id:5, name:'US — Seattle',               left:'2025-04-27', returned:'2025-05-07' },
+      { id:6, name:'US — Boston',                left:'2026-05-26', returned:'2026-05-31' },
+    ],
+    nextId: 7,
+  },
+  s: {
+    prDate: '2023-03-26',
+    trips: [
+      { id:1, name:'UK',                        left:'2023-04-01', returned:'2024-04-16' },
+      { id:2, name:'US — Washington, New York',  left:'2024-07-14', returned:'2024-07-21' },
+      { id:3, name:'US — California',            left:'2024-09-03', returned:'2024-09-13' },
+      { id:4, name:'India',                      left:'2024-11-28', returned:'2025-01-02' },
+      { id:5, name:'US — Atlanta',               left:'2025-03-04', returned:'2025-03-06' },
+      { id:6, name:'US — SF & Seattle',          left:'2025-04-22', returned:'2025-05-07' },
+      { id:7, name:'UK',                         left:'2026-01-10', returned:'2026-01-18' },
+      { id:8, name:'US — Boston',                left:'2026-05-26', returned:'2026-05-31' },
+    ],
+    nextId: 9,
+  },
+};
+
+function saveToStorage() {
+  try {
+    const payload = {
+      a: { prDate: document.getElementById('a-prDate').value, trips: state.a.trips, nextId: state.a.nextId },
+      s: { prDate: document.getElementById('s-prDate').value, trips: state.s.trips, nextId: state.s.nextId },
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch(e) { /* storage unavailable */ }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+// Init — load saved data or fall back to defaults
+const saved = loadFromStorage();
+['a', 's'].forEach(p => {
+  const src = saved?.[p] || DEFAULTS[p];
+  state[p].trips = src.trips;
+  state[p].nextId = src.nextId;
+  const prVal = src.prDate || DEFAULTS[p].prDate;
+  document.getElementById(`${p}-prDate`).value = prVal;
+});
+
+// Patch save into every mutation point
+const _origRenderTrips = renderTrips;
+renderTrips = function(p) { _origRenderTrips(p); saveToStorage(); };
+
+const _origAddTrip = addTrip;
+addTrip = function(p) { _origAddTrip(p); saveToStorage(); };
+
+const _origRemoveTrip = removeTrip;
+removeTrip = function(p, id) { _origRemoveTrip(p, id); saveToStorage(); };
+
+// Save when PR date changes
+document.getElementById('a-prDate').addEventListener('input', saveToStorage);
+document.getElementById('s-prDate').addEventListener('input', saveToStorage);
+
+// Also save on any name/date edits inside trip cards (delegated)
+document.getElementById('a-tripList').addEventListener('input', saveToStorage);
+document.getElementById('s-tripList').addEventListener('input', saveToStorage);
+
 renderTrips('a');
 renderTrips('s');
 setInterval(tickCountdown, 1000);
